@@ -1,8 +1,16 @@
 import { Injectable } from '@nestjs/common';
+import { User } from 'src/entity/user.entity';
+import { getConnection } from 'typeorm';
 
 @Injectable()
 export class UserService {
-  getAll(userIdx: number): number {
-    return userIdx;
+  async getOne(userIdx: number): Promise<User> {
+    const user = await getConnection()
+      .createQueryBuilder()
+      .select('user')
+      .from(User, 'user')
+      .where('user.id = :id', { id: userIdx })
+      .getOne();
+    return user;
   }
 }
