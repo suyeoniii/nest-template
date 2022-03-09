@@ -8,4 +8,6 @@ module.exports = {
   entities: ['dist/**/*.entity{.ts,.js}'],
   synchronize: false,
   logging: false,
+  charset: 'utf8mb4_unicode_ci',
+  timezone: '+09:00',
 };
