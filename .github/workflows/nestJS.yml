@@ -31,3 +31,34 @@ jobs:
     - run: npm ci
     - run: npm run build --if-present
     - run: npm test
+    
+  deploy:
+    needs: [build]
+    runs-on: ubuntu-20.04
+    steps:
+      - name: create env file
+        working-directory: ./
+        run: |
+          touch .env
+          cat << EOF >> .env
+          ${{ secrets.ENV }}
+    
+      - name: zip distributions
+        run: zip -r nest-template.zip ./dist
+        
+      - name: AWS configure credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
+
+      - name: upload to S3
+        run: aws s3 cp --region ap-northeast-2 nest-template.zip s3://suyeoniii-bucket/codedeploy
+
+      - name: deploy with AWS codeDeploy
+        run: aws deploy create-deployment
+          --application-name nest-template-codedeploy
+          --deployment-config-name CodeDeployDefault.OneAtATime
+          --deployment-group-name deploy-group
+          --s3-location bucket=suyeoniii-bucket,bundleType=zip,key=codedeploy/nest-template.zip
