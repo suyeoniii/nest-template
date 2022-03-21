@@ -36,10 +36,6 @@ jobs:
           touch .env
           cat << EOF >> .env
           ${{ secrets.ENV }}
-    
-      - name: Make tar file
-        run: tar -cpvzf ./$GITHUB_SHA.tgz *
-        shell: bash
         
       - name: AWS configure credentials
         uses: aws-actions/configure-aws-credentials@v1
