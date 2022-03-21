@@ -47,13 +47,13 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-2
+          
+      - name: S3 Upload
+        run: aws deploy push --application-name nest-template-codedeploy --description "mymap server deploy" --s3-location s3://suyeoniii-bucket/codedeploy/$GITHUB_SHA.zip --source .
 
-      - name: upload to S3
-        run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.tgz s3://suyeoniii-bucket/codedeploy/$GITHUB_SHA.tgz
-
-      - name: deploy with AWS codeDeploy
+      - name: code deploy
         run: aws deploy create-deployment
           --application-name nest-template-codedeploy
           --deployment-config-name CodeDeployDefault.OneAtATime
           --deployment-group-name deploy-group
-          --s3-location bucket=suyeoniii-bucket,bundleType=zip,key=codedeploy/$GITHUB_SHA.tgz
+          --s3-location bucket=suyeoniii-bucket,bundleType=zip,key=codedeploy/$GITHUB_SHA.zip
