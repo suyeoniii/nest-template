@@ -7,9 +7,9 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity('user')
+@Entity('User')
 export class User {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn({ unsigned: true })
   id: number;
 
   @Column()
@@ -21,7 +21,7 @@ export class User {
   @Column()
   password: string;
 
-  @Column() //TODO: set enum
+  @Column({ default: 'ACTIVE' }) //TODO: set enum
   status: string;
 
   @CreateDateColumn()

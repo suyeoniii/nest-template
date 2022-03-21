@@ -1,3 +1,4 @@
+import { HttpException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -34,23 +35,6 @@ describe('UsersService', () => {
 
   it('should be defined', () => {
     expect(service).toBeDefined();
-  });
-
-  describe('create()', () => {
-    const createArgs = {
-      name: 'username',
-      email: 'test@test.com',
-      password: 'hashedPassword',
-    };
-
-    it('should create Users', async () => {
-      userRepository.save.mockResolvedValue(createArgs);
-      const result = await service.create(createArgs);
-
-      expect(userRepository.save).toHaveBeenCalledTimes(1);
-      expect(userRepository.save).toHaveBeenCalledWith(createArgs);
-      expect(result).toEqual(createArgs);
-    });
   });
 
   describe('findAll()', () => {

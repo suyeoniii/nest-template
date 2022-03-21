@@ -1,9 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EntityNotFoundError, Repository } from 'typeorm';
+import { EntityNotFoundError, getCustomRepository, Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
+import { UsersRepository } from './users.repository';
 
 @Injectable()
 export class UsersService {
@@ -11,14 +12,27 @@ export class UsersService {
 
   constructor(
     @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
+    private readonly userRepository = getCustomRepository(UsersRepository),
   ) {}
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
+  async create(createUserDto: CreateUserDto): Promise<number> {
     try {
-      const result = await this.userRepository.save(createUserDto);
+      const result = await this.userRepository.insert(createUserDto);
       UsersService.logger.debug(result);
-      return result;
+      return result.raw.insertId;
+    } catch (error) {
+      UsersService.logger.debug(error);
+      throw error;
+    }
+  }
+  async checkEmail(createUserDto: CreateUserDto): Promise<boolean> {
+    try {
+      const user = await this.userRepository.findAndCount({
+        email: createUserDto.email,
+      });
+      UsersService.logger.debug(user);
+      console.log(user);
+      return !Boolean(user);
     } catch (error) {
       UsersService.logger.debug(error);
       throw error;
