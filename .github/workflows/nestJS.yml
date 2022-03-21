@@ -11,23 +11,18 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-20.04
-
     strategy:
       matrix:
         node-version: [16.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-
     steps:
     - name: Checkout source code.
       uses: actions/checkout@v2
-        
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v2
       with:
         node-version: ${{ matrix.node-version }}
-        
     - run: npm ci
     - run: npm run build --if-present
     - run: npm test
@@ -37,14 +32,13 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - name: create env file
-        working-directory: ./server
         run: |
           touch .env
           cat << EOF >> .env
           ${{ secrets.ENV }}
     
       - name: zip distributions
-        run: zip -r nest-template.zip ./server/dist
+        run: zip -r nest-template.zip ./dist
         
       - name: AWS configure credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -54,7 +48,6 @@ jobs:
           aws-region: ap-northeast-2
 
       - name: upload to S3
-        working-directory: ./server
         run: aws s3 cp --region ap-northeast-2 nest-template.zip s3://suyeoniii-bucket/codedeploy
 
       - name: deploy with AWS codeDeploy
