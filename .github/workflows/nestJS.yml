@@ -37,14 +37,14 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - name: create env file
-        working-directory: ./
+        working-directory: ./server
         run: |
           touch .env
           cat << EOF >> .env
           ${{ secrets.ENV }}
     
       - name: zip distributions
-        run: zip -r nest-template.zip ./dist
+        run: zip -r nest-template.zip ./server/dist
         
       - name: AWS configure credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -54,6 +54,7 @@ jobs:
           aws-region: ap-northeast-2
 
       - name: upload to S3
+        working-directory: ./server
         run: aws s3 cp --region ap-northeast-2 nest-template.zip s3://suyeoniii-bucket/codedeploy
 
       - name: deploy with AWS codeDeploy
