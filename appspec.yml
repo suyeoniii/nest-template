@@ -1,0 +1,9 @@
+version: 0.0
+os: linux
+files:
+  - source: /
+    destination: /var/www/nest-template
+hooks:
+  AfterInstall:
+    - location: ./scripts/deploy.sh
+      runas: root
