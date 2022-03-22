@@ -6,6 +6,8 @@ import {
   Patch,
   Param,
   Delete,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -16,7 +18,16 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  create(@Body() createUserDto: CreateUserDto) {
+  signUp(@Body() createUserDto: CreateUserDto) {
+    if (!this.usersService.checkEmail(createUserDto))
+      throw new HttpException(
+        {
+          status: HttpStatus.CONFLICT,
+          error: 'email already exist',
+        },
+        HttpStatus.CONFLICT,
+      );
+
     return this.usersService.create(createUserDto);
   }
 
