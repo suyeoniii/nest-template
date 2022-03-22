@@ -5,5 +5,5 @@ files:
     destination: /var/www/nest-template
 hooks:
   AfterInstall:
-    - location: scripts/deploy.sh
+    - location: ./scripts/deploy.sh
       runas: root
