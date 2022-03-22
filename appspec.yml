@@ -4,7 +4,7 @@ files:
   - source: /
     destination: /var/www/nest-template
     overwrite: yes
-
+file_exists_behavior: OVERWRITE
 permissions:
   - object: /home/ubuntu
     pattern: '**'
