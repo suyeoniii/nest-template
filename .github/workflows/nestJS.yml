@@ -40,7 +40,7 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - name: zip distributions
-        run: zip -r nest-template.zip ./
+        run: zip -r nest-template.zip .
 
       - name: AWS configure credentials
         uses: aws-actions/configure-aws-credentials@v1
