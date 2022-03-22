@@ -5,9 +5,9 @@ name: NestJS CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   build:
@@ -17,16 +17,16 @@ jobs:
         node-version: [16.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
     steps:
-    - name: Checkout source code.
-      uses: actions/checkout@v2
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v2
-      with:
-        node-version: ${{ matrix.node-version }}
-    - run: npm ci
-    - run: npm run build --if-present
-    - run: npm test
-    
+      - name: Checkout source code.
+        uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: npm ci
+      - run: npm run build --if-present
+      - run: npm test
+
   deploy:
     needs: [build]
     runs-on: ubuntu-20.04
@@ -36,20 +36,23 @@ jobs:
           touch .env
           cat << EOF >> .env
           ${{ secrets.ENV }}
-        
+
+      - name: zip distributions
+        run: zip -r nest-template.zip ./ ./appspec.yml ./scripts
+
       - name: AWS configure credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-2
-          
-      - name: S3 Upload
-        run: aws deploy push --application-name nest-template-codedeploy --description "mymap server deploy" --s3-location s3://suyeoniii-bucket/codedeploy/$GITHUB_SHA.zip --source .
+
+      - name: upload to S3
+        run: aws s3 cp --region ap-northeast-2 nest-template.zip s3://suyeoniii-bucket/codedeploy
 
       - name: code deploy
         run: aws deploy create-deployment
           --application-name nest-template-codedeploy
           --deployment-config-name CodeDeployDefault.OneAtATime
           --deployment-group-name deploy-group
-          --s3-location bucket=suyeoniii-bucket,bundleType=zip,key=codedeploy/$GITHUB_SHA.zip
+          --s3-location bucket=suyeoniii-bucket,bundleType=zip,key=codedeploy/nest-template.zip
