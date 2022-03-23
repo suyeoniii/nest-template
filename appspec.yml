@@ -5,13 +5,8 @@ files:
     destination: /var/www/nest-template
     overwrite: yes
 file_exists_behavior: OVERWRITE
-permissions:
-  - object: /home/ubuntu
-    pattern: '**'
-    owner: ubuntu
-    group: ubuntu
 
 hooks:
   AfterInstall:
     - location: scripts/deploy.sh
-      runas: ubuntu
+      runas: root
