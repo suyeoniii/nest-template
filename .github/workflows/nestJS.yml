@@ -28,7 +28,7 @@ jobs:
       - name: create env file
         run: |
           run: |
-          echo $ENV >> .env
+          echo "$ENV" > .env
         env:
           ENV: ${{ secrets.ENV }}
 
@@ -37,7 +37,7 @@ jobs:
       - run: npm test
 
       - name: zip distributions
-        run: zip -r ./nest-template.zip ./
+        run: zip -r ./nest-template.zip ./ ./.env
 
       - name: AWS configure credentials
         uses: aws-actions/configure-aws-credentials@v1
