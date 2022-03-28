@@ -28,7 +28,7 @@ jobs:
       - name: create env file
         run: |
           touch .env
-          echo ${{ secrets.ENV }} >> test
+          echo ${{ secrets.ENV }} >> t
           cat .env
 
       - run: npm ci
