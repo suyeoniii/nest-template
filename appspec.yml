@@ -2,10 +2,14 @@ version: 0.0
 os: linux
 files:
   - source: /
-    destination: /var/www/nest-template
+    destination: /var/www/nest/template
     overwrite: yes
 file_exists_behavior: OVERWRITE
-
+permissions:
+  - object: /var/www/nest/template
+    owner: ubuntu
+    group: ubuntu
+    mode: 755
 hooks:
   AfterInstall:
     - location: scripts/deploy.sh

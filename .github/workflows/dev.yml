@@ -1,0 +1,64 @@
+name: Node.js CI/CD
+
+on:
+  push:
+    branches: [ci/cd]
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        node-version: [16.x]
+
+    steps:
+      - name: Checkout source code.
+        uses: actions/checkout@v2
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Create .env file
+        run: |
+          touch .env
+          cat << EOF >> .env
+          ${{ secrets.ENV }}
+
+      - name: Dependency install and build
+        run: |
+          npm ci
+          npm run build
+
+      - name: Make zip file
+        run: zip -r ./nest-template_$GITHUB_SHA.zip *
+
+      - name: Configure AWS credential
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_CODEDEPLOY_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_CODEDEPLOY_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
+
+      - name: Upload to S3
+        run: aws s3 cp --region ap-northeast-2 ./nest-template_$GITHUB_SHA.zip s3://bari-deploy-bucket/dev/
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Configure AWS credential
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_CODEDEPLOY_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_CODEDEPLOY_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
+
+      - name: Deploy with AWS codedeploy
+        run: aws deploy create-deployment
+          --application-name nodejs-api
+          --deployment-config-name CodeDeployDefault.OneAtATime
+          --deployment-group-name dev
+          --s3-location bucket=bari-deploy-bucket,bundleType=zip,key=dev/nest-template_$GITHUB_SHA.zip
