@@ -1,6 +1,3 @@
-cd /var/www/nest-template
-git pull origin main
-npm ci
-npm run build
-pm2 restart dist/main.js
-echo deploy completed
+DEST=/var/www/nest-template
+runuser -l ubuntu -c "pm2 stop $DEST/dist/main.js"
+runuser -l ubuntu -c "pm2 start $DEST/dist/main.js"
